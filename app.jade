@@ -1,0 +1,15 @@
+.segmentation
+  .apiSecret
+    label(for="apiSecretInput") Api secret:
+    input#apiSecretInput(type="text" placeholder="Paste in your project API secret..." value=apiSecret, onkeyup=$helpers.apiSecretChanged)
+  .event
+    label(for="eventInput") Event name:
+    input#eventInput(type="text" name="eventInput" placeholder="Type an event name..." value=event, onkeyup=$helpers.eventChanged)
+  .filter
+    label(for="filterInput") Filter expression:
+    input#filterInput(type="text" placeholder="Type an filter expression..." value=where, onkeyup=$helpers.filterChanged)
+  .segment
+    label(for="segmentInput") Segment expression:
+    input#segmentInput(type="text" placeholder="Type a segment expression..." value=on, onkeyup=$helpers.segmentChanged)
+  #chart
+

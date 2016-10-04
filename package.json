@@ -1,0 +1,26 @@
+{
+  "name": "quixpanel",
+  "version": "1.0.0",
+  "description": "l33t mixpanel",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Josh Wymer",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-core": "^6.17.0",
+    "babel-loader": "^6.2.5",
+    "babel-preset-es2015": "^6.16.0",
+    "js-beautify": "^1.6.4",
+    "virtual-jade": "^0.4.5",
+    "virtual-jade-loader": "^0.4.0",
+    "webpack": "^1.13.2"
+  },
+  "dependencies": {
+    "d3": "^3.5.17",
+    "nvd3": "^1.8.4",
+    "panel": "^0.9.0"
+  }
+}
