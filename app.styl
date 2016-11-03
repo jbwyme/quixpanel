@@ -1,0 +1,81 @@
+@import '~mixpanel-common/stylesheets/defaults/index'
+
+label
+  display inline-flex
+  font-size-medium()
+  font-weight weight-bold
+  min-width 130px
+  white-space nowrap
+
+mp-button
+  margin-right 5px
+
+.segment-title
+  font-size-medium
+  .selected
+    font-weight weight-bold
+
+.bucket-row, .segment-row, .filter, .event
+  margin: 15px 0px
+
+.segment
+
+  .bucket-section, .segment-section
+    margin-left 15px;
+
+    .bucket-row
+      > *
+        vertical-align middle
+
+      .label
+        display inline-flex
+        font-size-medium()
+        font-weight weight-bold
+
+      .if-label
+        width 50px
+
+      .bucket-expr-input
+        margin-right: 10px
+
+      .bucket-val-input
+        width 150px
+
+      .remove-btn
+        align-items center
+        cursor pointer
+        display inline-flex
+        svg-icon-style(grey-700, mp-red)
+
+      .segment-toggle
+        margin 5px 0px
+
+
+  .add-btn
+    align-items center
+    cursor pointer
+    display inline-flex
+    font-size-medium()
+    color grey-700
+    svg-icon-style(base-color: grey-700, speed: 0)
+
+    &:hover
+      color mp-blue
+      svg-icon-style(base-color: mp-blue, speed: 0)
+
+.action-row
+  margin 20px 0px
+
+.alert-body
+  .title
+    font-size-large()
+    font-weight weight-bold
+    white-space normal
+
+  .message
+    font-size-medium()
+    font-weight weight-bold
+    margin 10px
+    text-align left
+    white-space normal
+

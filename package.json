@@ -10,16 +10,23 @@
   "author": "Josh Wymer",
   "license": "ISC",
   "devDependencies": {
+    "autoprefixer-loader": "^3.2.0",
     "babel-core": "^6.17.0",
     "babel-loader": "^6.2.5",
     "babel-preset-es2015": "^6.16.0",
+    "css-loader": "^0.25.0",
     "js-beautify": "^1.6.4",
+    "lodash": "^4.16.6",
+    "style-loader": "^0.13.1",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^2.3.1",
     "virtual-jade": "^0.4.5",
     "virtual-jade-loader": "^0.4.0",
     "webpack": "^1.13.2"
   },
   "dependencies": {
     "d3": "^3.5.17",
+    "mixpanel-common": "^0.20.0",
     "nvd3": "^1.8.4",
     "panel": "^0.9.0"
   }

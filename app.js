@@ -1,5 +1,10 @@
+import 'mixpanel-common';
+import _ from 'lodash';
+
 import { Component } from 'panel';
 import counterTemplate from './app.jade';
+
+import './app.styl';
 
 const objToQueryString = params => {
   return Object.keys(params).map(k => [k, encodeURIComponent(params[k])].join('=')).join('&');
@@ -28,15 +33,19 @@ document.registerElement('quixpanel-app', class extends Component {
     return {
       defaultState: {
         apiSecret: '',
-        event: 'Viewed report',
+        bucketMode: false,
+        buckets: [['', ''], ['', '']],
+        event: '',
         where: '',
-        on: 'properties["tab"] == "segmentation"',
-        from_date: '2016-09-01',
-        to_date: '2016-10-01',
-        unit: 'week',
+        on: '',
+        from_date: '2012-01-01',
+        to_date: '2016-10-18',
+        unit: 'month',
+        type: 'unique',
       },
 
       helpers: {
+        runQuery: () => this.executeQuery(true),
         apiSecretChanged: e => {
           this.update({apiSecret: document.querySelector('#apiSecretInput').value});
           this.executeQuery();
@@ -52,6 +61,53 @@ document.registerElement('quixpanel-app', class extends Component {
         segmentChanged: e => {
           this.update({on: document.querySelector('#segmentInput').value});
           this.executeQuery();
+        },
+        bucketChanged: e => {
+          const buckets = [];
+          const bucketRows = Array.from(document.querySelectorAll('.bucket-row'));
+          const elseRow = bucketRows.pop();
+          const elseVal = elseRow.querySelector('.bucket-val-input').value;
+          buckets.push([null, elseVal]);
+
+          const parseRow = row => [row.querySelector('.bucket-expr-input').value, row.querySelector('.bucket-val-input').value];
+          let [expr, val] = parseRow(bucketRows.pop());
+          buckets.unshift([expr, val]);
+
+          let on;
+          if (elseVal.includes("user[") || elseVal.includes("properties[")) {
+            on = `if (${expr}, "${val}", ${elseVal})`;
+          } else {
+            on = `if (${expr}, "${val}", "${elseVal}")`;
+          }
+
+
+          while (bucketRows.length) {
+            [expr, val] = parseRow(bucketRows.pop());
+            buckets.unshift([expr, val]);
+            on = `if (${expr}, "${val}", ${on})`;
+          }
+          this.update({buckets, on});
+          this.executeQuery();
+        },
+        bucketMode: () => {
+          this.update({bucketMode: true});
+        },
+        segmentMode: () => {
+          this.update({bucketMode: false});
+        },
+        addBucket: () => {
+          this.state.buckets.splice(this.state.buckets.length - 1, 0, ['', '']);
+          this.update();
+        },
+        removeBucket: e => {
+          const idx = e.currentTarget.dataset.idx;
+          this.state.buckets.splice(idx, 1);
+          this.update();
+        },
+        errorAlertChange: e => {
+          if (e.detail.state === 'closed') {
+            this.update({error: null})
+          }
         }
       },
 
@@ -59,14 +115,28 @@ document.registerElement('quixpanel-app', class extends Component {
     };
   }
 
-  start() {
+  update() {
+    super.update(...arguments);
+    const state = Object.assign({}, this.state);
+    delete state.apiSecret;
+    const jsonState = JSON.stringify(state);
+    window.localStorage.setItem('quixpanelState', jsonState);
+    window.location.hash = encodeURIComponent(jsonState);
 
   }
 
-  executeQuery() {
+  executeQuery(immediate=false) {
+    if (!immediate) {
+      clearTimeout(this.queryTimeout);
+      this.queryTimeout = setTimeout(() => {
+        this.executeQuery(true);
+      }, 1000)
+      return;
+    }
+
     API.get('segmentation', {
       event: this.state.event,
-      type: 'general',
+      type: this.state.type,
       limit: '150',
       on: this.state.on,
       where: this.state.where,
@@ -75,7 +145,10 @@ document.registerElement('quixpanel-app', class extends Component {
       unit: this.state.unit,
     }, this.state.apiSecret)
     .then(response => {
-      console.log(JSON.stringify(response));
+      if (response.error) {
+        this.update({error: response.error});
+        return;
+      }
       const COLORS = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a'];
       var vals = response.data.values;
       var data = [];
@@ -95,7 +168,6 @@ document.registerElement('quixpanel-app', class extends Component {
           color: COLORS[i % COLORS.length],
         })
       }
-      console.log(JSON.stringify(data));
       this.renderChart(data);
     })
   }
@@ -130,10 +202,48 @@ document.registerElement('quixpanel-app', class extends Component {
 
         return chart;
     });
-
   }
+
+  start(apiSecret) {
+    this.update({apiSecret: apiSecret});
+  }
+
 });
 
 const app = document.createElement('quixpanel-app');
+
+// load existing app state from localStorage or URL
+let state = {};
+if (window.location.hash) {
+  state = JSON.parse(decodeURIComponent(window.location.hash.substring(1)));
+} else if (localStorage.getItem('quixpanelState')) {
+  state = JSON.parse(localStorage.getItem('quixpanelState') || '{}');
+}
+app.state = Object.assign(app.state, state);
+
+function queryParam(name) {
+    const url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
 document.body.appendChild(app);
-app.start();
+
+if (queryParam('apiSecret')) {
+  app.start(queryParam('apiSecret'));
+} else {
+  const secretTimeout = setTimeout(() => {
+    app.update({error: 'Please provide your API secret'});
+  }, 5000);
+
+  window.onmessage = _.bind(function(message) {
+    if (_.isString(message.data.api_secret)) {
+      clearTimeout(secretTimeout);
+      app.start(message.data.api_secret);
+    }
+  }, this);
+}
+

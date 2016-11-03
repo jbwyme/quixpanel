@@ -1,15 +1,57 @@
 .segmentation
-  .apiSecret
-    label(for="apiSecretInput") Api secret:
+  .api-secret
+    label(for="apiSecretInput") Api secret
     input#apiSecretInput(type="text" placeholder="Paste in your project API secret..." value=apiSecret, onkeyup=$helpers.apiSecretChanged)
   .event
-    label(for="eventInput") Event name:
+    label(for="eventInput") Event name
     input#eventInput(type="text" name="eventInput" placeholder="Type an event name..." value=event, onkeyup=$helpers.eventChanged)
   .filter
-    label(for="filterInput") Filter expression:
+    label(for="filterInput") Filter expression
     input#filterInput(type="text" placeholder="Type an filter expression..." value=where, onkeyup=$helpers.filterChanged)
   .segment
-    label(for="segmentInput") Segment expression:
-    input#segmentInput(type="text" placeholder="Type a segment expression..." value=on, onkeyup=$helpers.segmentChanged)
+    .segment-title
+      span.mp-font-medium.mp-font-weight-bold Segement
+      = ' ('
+      if bucketMode
+        a(onclick=$helpers.segmentMode) segment mode
+        = ' / '
+        span.selected bucket mode
+      else
+        span.selected segment mode
+        = ' / '
+        a(onclick=$helpers.bucketMode) bucket mode
+      |)
+
+    if bucketMode
+      .bucket-section
+        for bucket, idx in buckets
+          - const isElse = idx === buckets.length - 1;
+          .bucket-row
+            - const [expr, val] = buckets[idx];
+            - const label = idx === 0 ? 'If' : idx === buckets.length - 1 ? 'else' : 'else if';
+            span.label.if-label #{label}
+            if !isElse
+              input.bucket-expr-input(type="text" placeholder="Type a boolean expression" onkeyup=$helpers.bucketChanged value=expr)
+            span.label label:
+            = '  '
+            input.bucket-val-input(type="text" placeholder="Type a label for this bucket" onkeyup=$helpers.bucketChanged value=val)
+            if !isElse && buckets.length > 2
+              .remove-btn(onclick=$helpers.removeBucket attributes={'data-idx': idx})
+                svg-icon(attributes={icon: 'x'})
+
+        mp-button.mp-button-secondary(onclick=$helpers.addBucket, attributes={icon: 'plus'}) bucket
+    else
+      .segment-section
+        .segment-row
+          label(for="segmentInput") on
+          input#segmentInput(type="text" placeholder="Type a segment expression..." value=on, onkeyup=$helpers.segmentChanged)
+
+  .action-row
+    mp-button.mp-button-primary(onclick=$helpers.runQuery attribute={icon: 'refresh'}) Run query
   #chart
 
+  if error
+    mp-modal(attributes={alert: true, closeable: true} onchange=$helpers.errorAlertChange)
+      .alert-body(attributes={'slot-body': true})
+        .title An error occurred
+        .message #{error}

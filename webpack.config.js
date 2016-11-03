@@ -25,7 +25,11 @@ module.exports = {
         query: {
           presets: ['es2015']
         }
-      }
+      },
+      {
+        test: /\.styl$/,
+        loader: 'style-loader!css-loader!autoprefixer-loader!stylus-loader',
+      },
     ]
   },
 };
