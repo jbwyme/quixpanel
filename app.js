@@ -1,4 +1,5 @@
 import 'mixpanel-common';
+import moment from 'moment';
 import _ from 'lodash';
 
 import { Component } from 'panel';
@@ -39,7 +40,7 @@ document.registerElement('quixpanel-app', class extends Component {
         where: '',
         on: '',
         from_date: '2012-01-01',
-        to_date: '2016-10-18',
+        to_date: moment().format('YYYY-MM-DD'),
         unit: 'month',
         type: 'unique',
       },
@@ -48,6 +49,18 @@ document.registerElement('quixpanel-app', class extends Component {
         runQuery: () => this.executeQuery(true),
         apiSecretChanged: e => {
           this.update({apiSecret: document.querySelector('#apiSecretInput').value});
+          this.executeQuery();
+        },
+        fromDateChanged: e => {
+          this.update({from_date: document.querySelector('#fromDateInput').value});
+          this.executeQuery();
+        },
+        toDateChanged: e => {
+          this.update({to_date: document.querySelector('#toDateInput').value});
+          this.executeQuery();
+        },
+        intervalChanged: e => {
+          this.update({interval: document.querySelector('#intervalInput').value});
           this.executeQuery();
         },
         eventChanged: e => {

@@ -3,12 +3,22 @@
     label(for="apiSecretInput") Api secret
     input#apiSecretInput(type="text" placeholder="Paste in your project API secret..." value=apiSecret, onkeyup=$helpers.apiSecretChanged)
   .event
+  .row.from-date
+    label(for="fromDateInput") From
+    input#fromDateInput(type="text" name="fromDateInput" placeholder="from (YYYY-MM-DD)" value=from_date onkeyup=$helpers.fromDateChanged)
+  .row.to-date
+    label(for="toDateInput") To
+    input#toDateInput(type="text" name="toDateInput" placeholder="to (YYYY-MM-DD)" value=to_date onkeyup=$helpers.toDateChanged)
+  .row.unit
+    label(for="unitInput") Unit
+    input#unitInput(type="text" name="unitInput" placeholder="day,week,month" value=unit onkeyup=$helpers.unitChanged)
+  .row.event
     label(for="eventInput") Event name
     input#eventInput(type="text" name="eventInput" placeholder="Type an event name..." value=event, onkeyup=$helpers.eventChanged)
-  .filter
+  .row.filter
     label(for="filterInput") Filter expression
     input#filterInput(type="text" placeholder="Type an filter expression..." value=where, onkeyup=$helpers.filterChanged)
-  .segment
+  .row.segment
     .segment-title
       span.mp-font-medium.mp-font-weight-bold Segement
       = ' ('
@@ -46,7 +56,7 @@
           label(for="segmentInput") on
           input#segmentInput(type="text" placeholder="Type a segment expression..." value=on, onkeyup=$helpers.segmentChanged)
 
-  .action-row
+  .row.action-row
     mp-button.mp-button-primary(onclick=$helpers.runQuery attribute={icon: 'refresh'}) Run query
   #chart
 
